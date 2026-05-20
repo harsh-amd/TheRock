@@ -674,6 +674,19 @@ test_matrix = {
             "windows": 1,
         },
     },
+    # kfdtest tests
+    "kfdtest": {
+        "job_name": "kfdtest",
+        "fetch_artifact_args": "--kfdtest --tests",
+        "timeout_minutes": 60,
+        "test_script": f"python {_get_script_path('test_kfdtest.py')}",
+        "platform": ["linux"],
+        "total_shards_dict": {
+            "linux": 1,
+        },
+        # Architectures that we have multi GPU setup for testing
+        "multi_gpu": {"linux": ["gfx94X-dcgpu", "gfx950-dcgpu"]},
+    },
 }
 
 
