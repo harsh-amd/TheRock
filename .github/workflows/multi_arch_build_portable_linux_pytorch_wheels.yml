@@ -45,12 +45,16 @@ on:
         description: PyTorch ref to checkout. Typically "nightly" or "release/X.Y".
         type: string
         required: true
+      pytorch_git_repo:
+        description: PyTorch repository owner/name to checkout for non-nightly refs.
+        type: string
+        default: "ROCm/pytorch"
       rocm_version:
         description: ROCm package version to install and build against (e.g. 7.10.0.dev0)
         type: string
         required: true
       rocm_package_find_links_url:
-        description: URL for pip --find-links to install ROCm packages
+        description: Python package index URL used to install ROCm packages
         type: string
         required: true
       release_type:
@@ -93,12 +97,16 @@ on:
         description: PyTorch ref to checkout (for example, "release/2.12").
         type: string
         default: "release/2.12"
+      pytorch_git_repo:
+        description: PyTorch repository owner/name to checkout for non-nightly refs.
+        type: string
+        default: "ROCm/pytorch"
       rocm_version:
         description: ROCm package version to install and build against (e.g. 7.10.0.dev0)
         type: string
         required: true
       rocm_package_find_links_url:
-        description: URL for pip --find-links to install ROCm packages
+        description: Python package index URL used to install ROCm packages
         type: string
         required: true
       release_type:
@@ -209,7 +217,7 @@ jobs:
         if: ${{ inputs.pytorch_git_ref != 'nightly' }}
         run: |
           ./external-builds/pytorch/pytorch_torch_repo.py checkout \
-            --gitrepo-origin https://github.com/ROCm/pytorch.git \
+            --gitrepo-origin https://github.com/${{ inputs.pytorch_git_repo }}.git \
             --repo-hashtag ${{ inputs.pytorch_git_ref }} \
             --no-commit-hipify
           ./external-builds/pytorch/pytorch_audio_repo.py checkout \
@@ -268,7 +276,7 @@ jobs:
           ./external-builds/pytorch/build_prod_wheels.py \
             build \
             --install-rocm \
-            --find-links "${{ inputs.rocm_package_find_links_url }}" \
+            --index-url "${{ inputs.rocm_package_find_links_url }}" \
             --clean \
             --output-dir ${{ env.PACKAGE_DIST_DIR }} \
             ${cache_flag} \
