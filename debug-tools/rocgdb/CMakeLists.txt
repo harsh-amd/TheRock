@@ -713,6 +713,35 @@ if(BUILD_TESTING)
     DESTINATION tests/rocgdb
     COMPONENT tests
   )
+
+  # Optionally install the test-filter (RFC0010) files when the ROCgdb
+  # sources provide them under .github/test-runner/. These are non-upstream
+  # helpers kept out of gdb's source tree, so each is guarded by EXISTS and
+  # absence is a no-op (keeps the wrapper compatible with upstream gdb).
+  #
+  # They install next to the testsuite at tests/rocgdb/gdb/testsuite/ so that:
+  #   - test_categories.yaml sits where test_rocgdb.py --tier looks for it, and
+  #   - CTestTestfile.cmake is discovered by
+  #       ctest --test-dir tests/rocgdb/gdb/testsuite
+  #     with each test reaching the launcher via ../../test_rocgdb.py.
+  set(ROCGDB_TEST_RUNNER_FILES
+    "test_categories.yaml"
+    "CTestTestfile.cmake"
+  )
+  foreach(rocgdb_test_runner_file ${ROCGDB_TEST_RUNNER_FILES})
+    set(_rocgdb_tr_src
+      "${ROCGDB_SOURCE_DIR}/.github/test-runner/${rocgdb_test_runner_file}")
+    if(EXISTS "${_rocgdb_tr_src}")
+      install(
+        FILES ${_rocgdb_tr_src}
+        DESTINATION tests/rocgdb/gdb/testsuite
+        COMPONENT tests
+      )
+    else()
+      message(WARNING "rocgdb tests: test-filter file not found at "
+        "${_rocgdb_tr_src}; skipping installation.")
+    endif()
+  endforeach()
 else()
   message(STATUS "rocgdb tests: BUILD_TESTING not set. Skipping installation integrity tests.")
 endif()
